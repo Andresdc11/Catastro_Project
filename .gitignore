@@ -1,0 +1,14 @@
+# datos: se descargan o regeneran con src/ y los notebooks (ver README)
+data/raw/
+data/processed/
+potencial_manzanas/outputs/
+
+# python y jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# sistema
+.DS_Store
+Thumbs.db
+desktop.ini
