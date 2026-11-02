@@ -26,7 +26,14 @@ no significa que se pueda pronosticar con precisión el avalúo o el rendimiento
 en pesos.
 
 La validación es temporal y de origen móvil. Para predecir la oportunidad de una
-ventana, el modelo solo se ajusta con ventanas anteriores. Las variables del
+ventana, el modelo solo se ajusta con ventanas **ya terminadas** en ese año
+(`fin <= origen`), para no ver precios posteriores al origen.
+
+> **Corrección:** la versión anterior no exigía que hubieran terminado y daba un lift de
+> 1,74× con `hist_gradient`. Ahora es 1,23× (IC 1,11 a 1,36) con
+> `logit_historia_espacio`: la señal es modesta. La comparación está en la sección 9 de `informe_potencial.ipynb`.
+
+Las variables del
 modelo supervisado son la trayectoria de avalúos conocida al inicio de la ventana
 y rasgos espaciales estables. Las especificaciones de edificaciones están
 disponibles únicamente como foto actual; por eso se publican en un indicador
@@ -59,13 +66,18 @@ morfología ya agregada en `manzanas.gpkg`.
 ## Archivos generados
 
 - `informe_potencial.ipynb`: informe EDA ejecutado, métricas del backtest, ranking y análisis de límites.
-- `outputs/potencial_2026_2029.csv.gz`: ranking supervisado por manzana.
+- `outputs/potencial_2026_2029.csv.gz`: ranking supervisado por manzana. Trae
+  `caida_fuerte_ultimo_anio` y `caida_fuerte_3a` (el valor bajó a menos de la mitad en un
+  año) y `puesto_sin_caidas` (el orden sin esas manzanas). El principio del ranking son
+  sobre todo manzanas marcadas: hay que saber por qué cayeron antes de considerarlas.
 - `outputs/contexto_edificaciones_2026.csv.gz`: valor e intensidad edificatoria
   contextual, con bandera de alto valor y baja intensidad.
 - `outputs/backtest_metricas.csv`: resultados por origen y modelo, comparados
   con la línea base sin señal.
 - `outputs/backtest_resumen.csv`: promedio de las validaciones temporales y
   referencia de desempeño.
+- `outputs/backtest_metricas_solapado.csv`: las mismas métricas con la regla anterior,
+  solo para medir la diferencia.
 - `outputs/backtest_predicciones.csv.gz`: predicciones fuera de tiempo usadas
   para calcular las métricas.
 - `outputs/entrenamiento_historico.csv.gz`: ventanas y etiquetas que alimentan
