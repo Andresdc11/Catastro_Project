@@ -30,9 +30,13 @@ Después, los notebooks en orden. El 03 necesita lo que deja el 02.
 
 | Notebook | Qué responde |
 |---|---|
-| `01_valor_suelo` | cuánto vale el suelo, dónde se valoriza, dónde están las empresas y **qué explica el precio** |
+| `01_valor_suelo` | cuánto vale el suelo, dónde se valoriza, dónde están las empresas y **qué variables se asocian con el precio** |
 | `02_pronostico` | cuánto va a valer hacia 2030 y qué manzanas le ganarían a la ciudad |
 | `03_clusters` | cuántos comportamientos de mercado hay y qué zonas destacan |
+
+Cada notebook cierra con una sección de **confiabilidad y deriva** y un **análisis
+de resultados**. Qué significa cada métrica, sus umbrales y cuánto creerle a cada
+resultado está en [`CONFIABILIDAD.md`](CONFIABILIDAD.md).
 
 ## Las fuentes
 
@@ -106,3 +110,7 @@ oportunidad y sus límites están documentados en
 [`potencial_manzanas/README.md`](potencial_manzanas/README.md). Este objetivo
 clasifica el grupo superior de crecimiento ajustado por precio; es distinto al
 pronóstico continuo del notebook 02.
+
+**Señal modesta:** al corregir su backtest, que se solapaba con el periodo validado, el
+lift bajó de 1,74× a 1,23×. El principio del ranking son manzanas que acaban de caer, y
+van marcadas (ver [`CONFIABILIDAD.md`](CONFIABILIDAD.md)).

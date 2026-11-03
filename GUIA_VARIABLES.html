@@ -1,0 +1,659 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Guía de variables del suelo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: índice fijo a la izquierda y una columna de consulta. La paleta sale de los colores de los propios notebooks. */
+:root {
+  --bg: #f5f8f8; --surface: #ffffff; --fg: #18292f; --muted: #566a72; --line: #d5dfe1;
+  --accent: #1f6f78; --accent-soft: #e0efee; --warn: #b4472f; --warn-soft: #fbece7;
+  --azul: #264653; --verde: #2a9d8f; --naranja: #f4a261; --rojo: #e76f51; --gris: #9aa5ab;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101a1e; --surface: #17242a; --fg: #e0eaec; --muted: #9db0b7; --line: #2d3f46;
+    --accent: #6cc7c0; --accent-soft: #1b3438; --warn: #f0957d; --warn-soft: #3a211b;
+    --azul: #6d9bb0; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101a1e; --surface: #17242a; --fg: #e0eaec; --muted: #9db0b7; --line: #2d3f46;
+  --accent: #6cc7c0; --accent-soft: #1b3438; --warn: #f0957d; --warn-soft: #3a211b;
+  --azul: #6d9bb0; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); }
+.marco {
+  display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px;
+  max-width: 1240px; margin: 0 auto; padding-block: 40px 80px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+nav { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); align-self: start; font-size: 14px; max-height: calc(100vh - 48px); overflow-y: auto; }
+nav p { margin: 14px 0 4px; font: 700 12px/1.3 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+nav a { display: block; padding: 3px 0; color: var(--fg); text-decoration: none; }
+nav a:hover { color: var(--accent); text-decoration: underline; }
+a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main { min-width: 0; }
+header { display: grid; gap: 10px; padding-bottom: 28px; border-bottom: 2px solid var(--fg); }
+h1 { margin: 0; font: 700 clamp(32px, 5vw, 46px)/1.08 var(--display); letter-spacing: -.015em; text-wrap: balance; }
+.entrada { max-width: 68ch; margin: 0; color: var(--muted); font-size: 18px; }
+section { padding-top: 48px; scroll-margin-top: 12px; }
+h2 { margin: 0 0 12px; font: 700 28px/1.2 var(--display); letter-spacing: -.01em; text-wrap: balance; }
+h3 { margin: 32px 0 8px; font: 700 19px/1.3 var(--display); scroll-margin-top: 12px; }
+p, ul { max-width: 72ch; }
+p { margin: 0 0 12px; }
+ul { margin: 0 0 12px; padding-left: 22px; }
+li { margin-bottom: 4px; }
+code { font: 500 .88em var(--mono); color: var(--accent); overflow-wrap: anywhere; }
+.etiqueta { display: inline-block; padding: 1px 8px; margin-right: 6px; background: var(--accent-soft); color: var(--accent); font: 500 12px/1.7 var(--mono); }
+.tabla { overflow-x: auto; margin: 10px 0 18px; border-top: 1px solid var(--line); }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+th { padding: 8px 12px 8px 0; text-align: left; font: 700 12px/1.3 var(--display); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 9px 14px 9px 0; vertical-align: top; border-bottom: 1px solid var(--line); }
+td:first-child { min-width: 150px; }
+td.f { min-width: 240px; }
+.num { text-align: right; white-space: nowrap; }
+.aviso { max-width: 72ch; margin: 14px 0; padding: 12px 16px; background: var(--warn-soft); border-left: 3px solid var(--warn); }
+.aviso strong { color: var(--warn); }
+.nota { max-width: 72ch; margin: 14px 0; padding: 12px 16px; background: var(--accent-soft); }
+.nota > :last-child, .aviso > :last-child { margin-bottom: 0; }
+.formula { overflow-x: auto; margin: 10px 0 16px; max-width: 72ch; }
+mjx-container { max-width: 100%; }
+mjx-container[display="true"] { margin: 10px 0 !important; text-align: left !important; }
+.pasos { display: grid; gap: 4px; margin: 10px 0 16px; max-width: 72ch; }
+.doble { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; align-items: start; }
+.doble > * { min-width: 0; }
+.calc { display: grid; gap: 14px; max-width: 72ch; margin: 18px 0; padding: 18px; background: var(--surface); border: 1px solid var(--line); }
+.calc-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.calc label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.calc input { width: 100%; padding: 8px 10px; font: 500 15px var(--mono); color: var(--fg); background: var(--bg); border: 1px solid var(--line); }
+.calc output { font: 700 30px/1.15 var(--display); color: var(--accent); }
+.calc small { display: block; color: var(--muted); font: 400 14px/1.5 var(--body); }
+.muestra { display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: -3px; border: 1px solid var(--line); }
+.paleta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 12px 0 18px; }
+.color { min-width: 0; background: var(--surface); border: 1px solid var(--line); }
+.color i { display: block; height: 52px; }
+.color div { padding: 8px 10px; font-size: 13.5px; line-height: 1.4; }
+.color b { display: block; font: 700 14px var(--display); }
+.color span { font: 400 12px var(--mono); color: var(--muted); }
+.escala { height: 18px; min-width: 170px; }
+.esc-tope { display: flex; justify-content: space-between; min-width: 170px; font-size: 12px; color: var(--muted); }
+svg text { fill: var(--fg); font-family: var(--body); }
+svg .tenue { fill: var(--muted); }
+@media (max-width: 860px) {
+  .marco { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 24px 60px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  nav { position: static; max-height: none; columns: 2; column-gap: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  nav p { break-after: avoid; }
+}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+  svg: { fontCache: "global" },
+  options: { enableMenu: false }
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+
+<div class="marco">
+<nav aria-label="Contenido">
+  <p>Empezar</p>
+  <a href="#tadc">Por qué la TADC</a>
+  <a href="#notacion">Notación</a>
+  <p>Variables</p>
+  <a href="#identidad">Precio e identidad</a>
+  <a href="#morfologia">Morfología</a>
+  <a href="#ubicacion">Ubicación y dirección</a>
+  <a href="#modelo02">Las del pronóstico</a>
+  <p>Fórmulas</p>
+  <a href="#f01">Notebook 01</a>
+  <a href="#f02a">02: ciudad</a>
+  <a href="#f02b">02: manzanas</a>
+  <a href="#f02c">02: pronóstico</a>
+  <a href="#f02d">02: confiabilidad</a>
+  <a href="#deriva">PSI, KS, Wasserstein</a>
+  <p>Lectura</p>
+  <a href="#colores">Colores</a>
+</nav>
+
+<main>
+<header>
+  <h1>Guía de variables y fórmulas</h1>
+  <p class="entrada">Qué significa cada columna y cómo se calcula cada número de <code>01_valor_suelo</code> y <code>02_pronostico</code>. Valor del suelo en Bogotá, serie de Catastro 2017-2026.</p>
+</header>
+
+<section id="tadc">
+  <h2>Por qué la TADC se calcula así</h2>
+  <p>La <strong>tasa anual de crecimiento (TADC)</strong> responde una sola pregunta: ¿qué porcentaje fijo, repetido cada año, lleva el precio de su valor inicial al final? Los crecimientos se acumulan unos sobre otros, así que la fórmula sale de despejar esa tasa \(r\):</p>
+  <div class="pasos">
+    <div>\[P_{\text{final}} = P_{\text{inicial}}\,(1+r)^{n}\]</div>
+    <div>\[\frac{P_{\text{final}}}{P_{\text{inicial}}} = (1+r)^{n}\]</div>
+    <div>\[\text{TADC} = r = \left(\frac{P_{\text{final}}}{P_{\text{inicial}}}\right)^{1/n} - 1\]</div>
+  </div>
+  <p><strong>El exponente es 1/9, no 1/10.</strong> De 2017 a 2026 hay diez años de datos, pero solo nueve pasos entre ellos. \(n\) cuenta los pasos.</p>
+
+  <div class="calc">
+    <div class="calc-campos">
+      <label for="p-ini">Precio inicial (COP/m²)<input id="p-ini" type="number" min="1" value="1200000"></label>
+      <label for="p-fin">Precio final (COP/m²)<input id="p-fin" type="number" min="1" value="2590000"></label>
+      <label for="anios"><span>Años entre uno y otro (n)</span><input id="anios" type="number" min="1" value="9"></label>
+    </div>
+    <div>
+      <output id="res-tadc" for="p-ini p-fin anios">8,9 % anual</output>
+      <small id="res-texto">El precio se multiplicó por 2,16. Cada año se multiplica por 1,089: 1,089 elevado a 9 da 2,16.</small>
+      <small>Los valores iniciales son la mediana de la ciudad en 2017 y 2026 (notebook 01).</small>
+    </div>
+  </div>
+
+  <h3>Por qué no sirve promediar los crecimientos de cada año</h3>
+  <p>Porque el promedio simple ignora que cada porcentaje se aplica sobre una base distinta. Si un precio sube 100 % y luego baja 50 %, vuelve al inicio: el promedio dice +25 % y lo real es 0 %. En los datos pasa lo mismo, con más fuerza. Esta es la manzana <code>008540017</code>, en el borde norte de Usaquén:</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Año</th><th class="num">2017</th><th class="num">2021</th><th class="num">2022</th><th class="num">2023</th><th class="num">2024</th><th class="num">2026</th></tr></thead>
+    <tbody>
+      <tr><td>Valor (COP/m²)</td><td class="num">550 000</td><td class="num">850 000</td><td class="num">850 000</td><td class="num">160 500</td><td class="num">1 870 000</td><td class="num">2 200 000</td></tr>
+      <tr><td>Cambio del año</td><td class="num">n/a</td><td class="num">+26,9 %</td><td class="num">0 %</td><td class="num">−81,1 %</td><td class="num">+1 065 %</td><td class="num">+4,8 %</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>Promedio de los nueve cambios anuales: 116 % al año.</strong> Con esa tasa, 550 000 pesos llegarían a más de 500 millones.</li>
+    <li><strong>TADC 2017-2026: 16,7 % al año.</strong> \((2\,200\,000 / 550\,000)^{1/9} - 1\). Aplicada nueve veces, da exactamente 2 200 000.</li>
+    <li><strong>TADC 2023-2026: 139 % al año.</strong> Mismo final, pero el inicio es el año hundido.</li>
+  </ul>
+  <p>La última línea muestra el límite de la fórmula: solo mira los dos extremos. Es correcta para lo que pregunta, pero un extremo anómalo la distorsiona, y dos manzanas con caminos muy distintos pueden tener la misma TADC.</p>
+
+  <h3>Por qué no usar el crecimiento total</h3>
+  <p>El crecimiento total (+300 % en el ejemplo) no permite comparar periodos de distinta duración. La TADC deja en la misma unidad, % por año, una ventana de 9 años y una de 3.</p>
+
+  <h3>La misma fórmula, escrita en logaritmo</h3>
+  <p>El notebook 01 usa la razón de precios. El notebook 02 trabaja en \(\log_{10}\), donde el crecimiento es una resta dividida por los años. Se pasa de una forma a la otra con la función <code>pct</code>:</p>
+  <div class="formula">\[g = \frac{\log_{10} P_{\text{final}} - \log_{10} P_{\text{inicial}}}{n} \qquad\qquad \mathrm{pct}(g) = 100\,(10^{g} - 1) = 100 \cdot \text{TADC}\]</div>
+  <p>El logaritmo sirve porque los modelos pueden sumar: la ciudad más lo relativo de la manzana. Además, duplicar y reducir a la mitad quedan a la misma distancia de cero.</p>
+
+  <h3>Tres "crecimientos de la ciudad" que no son contradictorios</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Cifra</th><th>Dónde</th><th>Cómo se calcula</th></tr></thead>
+    <tbody>
+      <tr><td><strong>8,9 %</strong></td><td>01, sección 2</td><td>TADC 2017-2026 de la mediana de todas las manzanas con dato cada año (1,20 M a 2,59 M)</td></tr>
+      <tr><td><strong>9,2 %</strong></td><td>02, deriva histórica</td><td>Lo mismo, solo con las manzanas que tienen los diez años completos (1,20 M a 2,65 M)</td></tr>
+      <tr><td><strong>8,0 %</strong></td><td>02, escenario central</td><td>Mediana de los siete trienios observados. Es el supuesto hacia 2030, no una medida del pasado completo</td></tr>
+    </tbody>
+  </table></div>
+  <div class="nota"><p>La TADC es <strong>nominal</strong>: incluye la inflación. Por eso los notebooks comparan con la ciudad (<code>vs_ciudad</code>), una diferencia que no depende de ella si la inflación afecta a todas las manzanas por igual.</p></div>
+</section>
+
+<section id="notacion">
+  <h2>Notación</h2>
+  <div class="tabla"><table>
+    <thead><tr><th>Símbolo</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td>\(P_t\)</td><td>Valor de referencia del m² de la manzana en el año \(t\): columna <code>V_REF</code> de Catastro. Si hay varios registros en un año se toma la mediana; los valores en 0 se descartan.</td></tr>
+      <tr><td>\(\log_{10}\)</td><td>Logaritmo base 10. Una diferencia de 0,1 equivale a un 26 %, porque \(10^{0{,}1} - 1 = 0{,}259\).</td></tr>
+      <tr><td>\(\mathrm{pct}(g)\)</td><td>\(100\,(10^{g} - 1)\): convierte un crecimiento en log10 a porcentaje.</td></tr>
+      <tr><td>\(y,\ \hat{y}\)</td><td>Valor real y valor estimado. En el 01 son el log del precio; en el 02, el crecimiento relativo a la ciudad.</td></tr>
+      <tr><td>\(\bar{y}\)</td><td>Promedio de \(y\).</td></tr>
+      <tr><td>\(\mathrm{med}(\cdot)\)</td><td>Mediana.</td></tr>
+      <tr><td>\(H\)</td><td>Horizonte de cada ejercicio del 02: 3 años.</td></tr>
+      <tr><td>Punto (porcentual)</td><td>Diferencia entre dos porcentajes. Crecer 12 % cuando la ciudad crece 9 % son +3 puntos. No es lo mismo que \(\mathrm{pct}(r)\) sobre el relativo: esa cifra se multiplica por \((1+g)\) para llegar a puntos.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="aviso"><p><strong>"Deriva" tiene dos sentidos.</strong> La <em>deriva de la ciudad</em> es lo que sube la mediana de Bogotá. La <em>deriva de datos</em> es cuánto cambia una distribución entre dos momentos. Los notebooks usan ambos.</p></div>
+  <div class="aviso"><p><strong><code>V_REF</code> no es un precio de transacción.</strong> Es un valor administrativo. Ninguna fórmula de esta guía lo valida contra precios reales de mercado.</p></div>
+</section>
+
+<section id="identidad">
+  <h2>Precio e identidad de la manzana</h2>
+  <p>Estas columnas y las de las dos secciones siguientes viven en <code>data/processed/manzanas.gpkg</code>, que arma <code>src/tabla.py</code>. <code>barrio</code> y <code>localidad</code> son la excepción: los agregan los notebooks cuando los necesitan. Ejemplo real: la manzana <code>008305018</code>.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Variable</th><th>Qué es</th><th>De dónde sale</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>MANCODIGO</code></td><td>Código de la manzana, 9 dígitos</td><td>Catastro. Los 6 primeros son el sector y los 3 siguientes la manzana</td><td><code>008305018</code></td></tr>
+      <tr><td><code>sector</code></td><td>Sector catastral</td><td>Primeros 6 dígitos del código</td><td><code>008305</code></td></tr>
+      <tr><td><code>cop_m2</code></td><td>Valor de referencia 2026, en pesos por m²</td><td><code>valor_referencia_2026.gpkg</code></td><td>8 450 000</td></tr>
+      <tr><td><code>uso</code></td><td>Uso económico predominante de la manzana, no de cada predio</td><td><code>uso_predominante_2026.gpkg</code></td><td>RESIDENCIAL</td></tr>
+      <tr><td><code>estrato</code></td><td>Estrato socioeconómico; 0 pasa a vacío, "sin estratificar"</td><td><code>estratos_manzana.gpkg</code>, cruce espacial</td><td>6</td></tr>
+      <tr><td><code>barrio</code></td><td>Nombre del sector catastral, casi siempre el barrio</td><td><code>sectores_catastrales.csv</code></td><td>Bellavista</td></tr>
+      <tr><td><code>localidad</code></td><td>Localidad donde cae la manzana</td><td><code>localidades.gpkg</code>, cruce espacial</td><td>Chapinero</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="morfologia">
+  <h2>Morfología: lo construido</h2>
+  <p><code>src/morfologia.py</code> recorre 2,4 millones de construcciones y las suma por manzana. Solo cuenta áreas de 1 a 200 000 m², y los pisos van de 1 a 60. El ejemplo sigue siendo <code>008305018</code>, con 36 construcciones en 11 lotes.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Variable</th><th>Fórmula</th><th>Qué significa</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>n_construcciones</code></td><td class="f">número de construcciones</td><td>Volúmenes registrados en la manzana</td><td>36</td></tr>
+      <tr><td><code>n_lotes</code></td><td class="f">lotes distintos</td><td>Últimos 3 dígitos del código de lote</td><td>11</td></tr>
+      <tr><td><code>area_huella_m2</code></td><td class="f">\(\sum_i a_i\)</td><td>Suelo que tapan las construcciones, con \(a_i\) el área de cada una</td><td>4 032,7</td></tr>
+      <tr><td><code>area_construida_m2</code></td><td class="f">\(\sum_i a_i \cdot \mathrm{pisos}_i\)</td><td>Metros construidos sumando todos los pisos</td><td>20 696,3</td></tr>
+      <tr><td><code>pisos_prom_pond</code></td><td class="f">\(\dfrac{\text{área construida}}{\text{huella}}\)</td><td>Altura promedio. Una torre grande pesa más que una casa pequeña</td><td>5,13</td></tr>
+      <tr><td><code>pisos_max</code></td><td class="f">\(\max_i \mathrm{pisos}_i\)</td><td>La construcción más alta</td><td>9</td></tr>
+      <tr><td><code>frac_pisos_ge3</code></td><td class="f">\(\dfrac{\#\{\mathrm{pisos}_i \ge 3\}}{n}\)</td><td>Fracción de construcciones con 3 pisos o más</td><td>0,44 (16 de 36)</td></tr>
+      <tr><td><code>frac_subterraneo</code></td><td class="f">\(\dfrac{\#\{\text{con sótano o semisótano}\}}{n}\)</td><td>Fracción con algo bajo tierra</td><td>0,39 (14 de 36)</td></tr>
+      <tr><td><code>huella_media_m2</code></td><td class="f">\(\dfrac{\text{huella}}{n}\)</td><td>Tamaño típico de cada construcción</td><td>112,0</td></tr>
+      <tr><td><code>area_manzana_m2</code></td><td class="f">área del polígono</td><td>Medida en metros (EPSG:3116)</td><td>6 344,6</td></tr>
+      <tr><td><code>compacidad</code></td><td class="f">\(\dfrac{4\pi A}{L^2}\)</td><td>\(A\): área, \(L\): perímetro. 1 es un círculo; cerca de 0, una forma alargada o irregular</td><td>0,58</td></tr>
+      <tr><td><code>indice_construccion</code></td><td class="f">\(\dfrac{\text{área construida}}{\text{área manzana}}\)</td><td>Metros construidos por metro de suelo, topado en el percentil 99,5</td><td>3,26</td></tr>
+      <tr><td><code>indice_ocupacion</code></td><td class="f">\(\min\!\left(\dfrac{\text{huella}}{\text{área manzana}},\ 1\right)\)</td><td>Fracción del suelo cubierta</td><td>0,64</td></tr>
+      <tr><td><code>densidad_lotes_ha</code></td><td class="f">\(\dfrac{\text{lotes}}{\text{área manzana} / 10\,000}\)</td><td>Lotes por hectárea. Alta: muchos predios pequeños, más difíciles de englobar</td><td>17,3</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="ivs"><code>ivs</code>: un solo número de intensidad edificatoria</h3>
+  <p>Resume cinco rasgos en un percentil de 0 a 100. Se calcula solo en manzanas con 5 construcciones o más. El notebook 01 no lo usa, porque trabaja con los rasgos por separado; el 02 sí.</p>
+  <ul>
+    <li><strong>Los cinco rasgos:</strong> \(\ln(1 + \text{índice de construcción})\), pisos promedio, fracción con 3+ pisos, fracción bajo tierra y \(\ln(1 + \text{huella media})\). Cada uno se estandariza.</li>
+    <li><strong>Componentes principales (PCA):</strong> se conservan las de varianza mayor que 1 (criterio de Kaiser) y se orienta el signo para que crezcan con la huella.</li>
+    <li><strong>Mezcla:</strong> \(c = \sum_j w_j\, z_j\), donde \(w_j\) es la parte de la varianza retenida que explica cada componente.</li>
+    <li><strong>Escala:</strong> \(\mathrm{ivs} = 100 \cdot \text{percentil de } c\). Un IVS de 90 quiere decir más intenso que el 90 % de las manzanas.</li>
+  </ul>
+</section>
+
+<section id="ubicacion">
+  <h2>Ubicación</h2>
+  <p>El punto de cada manzana es un punto interior del polígono. Para medir en kilómetros, los grados se convierten con constantes a la latitud de Bogotá: 1° de longitud son \(111{,}320 \cos(4{,}65^\circ) = 110{,}95\) km y 1° de latitud son 110,574 km.</p>
+
+  <h3 id="pbdir"><code>pbdir_sin</code> y <code>pbdir_cos</code>: hacia dónde queda la manzana</h3>
+  <div class="doble">
+    <div>
+      <p>El nombre viene de <strong>p</strong>laza de <strong>B</strong>olívar y <strong>dir</strong>ección. Dicen en qué <strong>dirección</strong> está la manzana vista desde la Plaza de Bolívar; en cartografía, ese rumbo se llama azimut. No dicen a qué distancia: de eso se encargan <code>dist_centro_historico_km</code>, <code>lon</code> y <code>lat</code>.</p>
+      <div class="formula">\[\theta = \operatorname{atan2}\big(\Delta_{\text{este}},\ \Delta_{\text{norte}}\big)\]</div>
+      <div class="formula">\[\mathrm{pbdir\_sin} = \sin\theta \qquad \mathrm{pbdir\_cos} = \cos\theta\]</div>
+      <p>\(\Delta\) son los kilómetros al este y al norte de la Plaza. Un \(\theta\) de 0 es el norte, y aumenta en el sentido del reloj.</p>
+      <ul>
+        <li><code>pbdir_cos</code> es el eje <strong>norte-sur</strong>: +1 al norte, −1 al sur.</li>
+        <li><code>pbdir_sin</code> es el eje <strong>este-oeste</strong>: +1 al este, −1 al oeste.</li>
+      </ul>
+    </div>
+    <svg viewBox="0 0 360 360" role="img" aria-label="Brújula con la Plaza de Bolívar al centro y tres ejemplos de dirección" style="width:100%;max-width:400px;height:auto">
+      <circle cx="180" cy="180" r="130" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+      <line x1="180" y1="30" x2="180" y2="330" stroke="var(--line)"/>
+      <line x1="30" y1="180" x2="330" y2="180" stroke="var(--line)"/>
+      <text x="180" y="20" text-anchor="middle" font-size="12" font-weight="600">Norte · sin 0, cos +1</text>
+      <text x="180" y="350" text-anchor="middle" font-size="12" font-weight="600">Sur · sin 0, cos −1</text>
+      <text x="356" y="172" text-anchor="end" font-size="12" font-weight="600">Este</text>
+      <text x="356" y="196" text-anchor="end" font-size="11" class="tenue">sin +1, cos 0</text>
+      <text x="4" y="150" font-size="12" font-weight="600">Oeste</text>
+      <text x="4" y="165" font-size="11" class="tenue">sin −1, cos 0</text>
+      <line x1="180" y1="180" x2="235.9" y2="62.6" stroke="var(--verde)" stroke-width="2.5"/>
+      <circle cx="235.9" cy="62.6" r="6" fill="var(--verde)"/>
+      <text x="246" y="56" font-size="11" font-weight="600">Manzana ejemplo</text>
+      <text x="246" y="70" font-size="11" class="tenue">sin +0,43, cos +0,90</text>
+      <line x1="180" y1="180" x2="121" y2="64.2" stroke="var(--naranja)" stroke-width="2.5"/>
+      <circle cx="121" cy="64.2" r="6" fill="var(--naranja)"/>
+      <text x="111" y="52" text-anchor="end" font-size="11" font-weight="600">Salitre</text>
+      <text x="111" y="66" text-anchor="end" font-size="11" class="tenue">sin −0,45, cos +0,89</text>
+      <line x1="180" y1="180" x2="50.6" y2="192.5" stroke="var(--rojo)" stroke-width="2.5"/>
+      <circle cx="50.6" cy="192.5" r="6" fill="var(--rojo)"/>
+      <text x="40" y="218" font-size="11" font-weight="600">Kennedy-Bosa</text>
+      <text x="40" y="232" font-size="11" class="tenue">sin −0,99, cos −0,10</text>
+      <circle cx="180" cy="180" r="6" fill="var(--fg)"/>
+      <text x="190" y="199" font-size="12" font-weight="600">Plaza de Bolívar</text>
+    </svg>
+  </div>
+  <p><strong>Por qué dos números en vez del ángulo.</strong> El ángulo tiene un salto artificial: 359° y 1° son casi el mismo rumbo, pero un modelo los vería a 358 unidades de distancia. Con seno y coseno, esos dos rumbos quedan casi iguales. Hacen falta los dos porque el seno solo no distingue el noreste del sureste.</p>
+  <p><strong>Cuenta completa de la manzana ejemplo:</strong> está en lon −74,0490 y lat 4,6552. Eso da 3,01 km al este y 6,32 km al norte de la Plaza, con \(\theta = \operatorname{atan2}(3{,}01;\ 6{,}32) = 25{,}4^\circ\). Por tanto, \(\sin\theta = 0{,}43\) y \(\cos\theta = 0{,}90\): queda hacia el norte, un poco al este. Su distancia es \(\sqrt{3{,}01^2 + 6{,}32^2} = 7{,}0\) km, lo mismo que dice <code>dist_centro_historico_km</code>. En toda la ciudad, las medianas son sin −0,52 y cos +0,27: lo típico es quedar hacia el occidente y algo al norte de la Plaza.</p>
+
+  <h3>Las demás variables de ubicación</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Variable</th><th>Fórmula</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><code>lon</code>, <code>lat</code></td><td class="f">punto interior del polígono</td><td>Longitud y latitud en grados</td></tr>
+      <tr><td><code>dist_&lt;centro&gt;_km</code></td><td class="f">\(\sqrt{\Delta_x^2 + \Delta_y^2}\)</td><td>Distancia en línea recta a cada una de las ocho centralidades, en km. No es distancia por vías</td></tr>
+      <tr><td><code>dist_centro_cercano_km</code></td><td class="f">\(\min_c\ \mathrm{dist}_c\)</td><td>Distancia a la centralidad más próxima</td></tr>
+      <tr><td><code>centro_cercano</code></td><td class="f">\(\arg\min_c\ \mathrm{dist}_c\)</td><td>Cuál es esa centralidad</td></tr>
+      <tr><td><code>dist_cerros_km</code></td><td class="f">\(\max(\mathrm{borde}(\text{lat}) - \text{lon},\ 0) \cdot 110{,}95\)</td><td>Kilómetros al borde oriental. El borde es el percentil 99 de longitud en bandas de 0,01° de latitud, suavizado con la mediana de 5 bandas. Es una aproximación, no el trazo real de los cerros</td></tr>
+      <tr><td><code>vecinos_500m</code>, <code>vecinos_1km</code></td><td class="f">\(\#\{j \ne i : d_{ij} \le r\}\)</td><td>Cuántas manzanas hay alrededor. Mide densidad urbana</td></tr>
+      <tr><td><code>dist_vecino_8_km</code></td><td class="f">distancia a la 8.ª manzana más cercana</td><td>Alta: manzana aislada o de borde. Baja: tejido apretado</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Las ocho centralidades</h3>
+  <p>Son coordenadas aproximadas, definidas a mano en <code>src/config.py</code>.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Nombre en la columna</th><th>Lugar</th><th class="num">Longitud</th><th class="num">Latitud</th></tr></thead>
+    <tbody>
+      <tr><td><code>centro_historico</code></td><td>Plaza de Bolívar</td><td class="num">−74,0761</td><td class="num">4,5981</td></tr>
+      <tr><td><code>centro_internacional</code></td><td>Carrera 7 con calle 26</td><td class="num">−74,0706</td><td class="num">4,6105</td></tr>
+      <tr><td><code>zona_t</code></td><td>Calle 82 con carrera 12, Andino</td><td class="num">−74,0527</td><td class="num">4,6668</td></tr>
+      <tr><td><code>calle_100</code></td><td>Calle 100 con carrera 15</td><td class="num">−74,0530</td><td class="num">4,6860</td></tr>
+      <tr><td><code>usaquen</code></td><td>Parque fundacional</td><td class="num">−74,0306</td><td class="num">4,6950</td></tr>
+      <tr><td><code>salitre</code></td><td>Av. La Esperanza con Av. 68</td><td class="num">−74,1040</td><td class="num">4,6530</td></tr>
+      <tr><td><code>aeropuerto</code></td><td>El Dorado</td><td class="num">−74,1469</td><td class="num">4,7016</td></tr>
+      <tr><td><code>centro_sur</code></td><td>Kennedy-Bosa</td><td class="num">−74,1600</td><td class="num">4,5900</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="modelo02">
+  <h2>Las variables del pronóstico (notebook 02)</h2>
+  <p>El modelo usa 19 variables. Trece no cambian con el año: 12 de ubicación (<code>lon</code>, <code>lat</code>, distancia al centro histórico, Calle 100, aeropuerto, centro sur y cerros, los dos <code>pbdir</code>, los dos conteos de vecinos, la distancia al 8.º vecino) y el <code>ivs</code>. Las otras seis se calculan en cada año de origen \(t_0\) con \(s_t = \log_{10} P_t\):</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Variable</th><th>Fórmula</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><code>nivel_rel</code></td><td class="f">\(s_{t_0} - \mathrm{med}(s_{t_0})\)</td><td>Qué tan cara es frente a la ciudad ese año. Es la variable que más pesa</td></tr>
+      <tr><td><code>g1</code></td><td class="f">\(s_{t_0} - s_{t_0-1}\)</td><td>Crecimiento del último año</td></tr>
+      <tr><td><code>g2</code></td><td class="f">\((s_{t_0} - s_{t_0-2})/2\)</td><td>Crecimiento anual del último bienio</td></tr>
+      <tr><td><code>vec_nivel</code></td><td class="f">\(\frac{1}{8}\sum_{j \in V} s_{j,t_0} - \mathrm{med}(s_{t_0})\)</td><td>Precio relativo de sus 8 vecinas (\(V\))</td></tr>
+      <tr><td><code>vec_g1</code>, <code>vec_g2</code></td><td class="f">\(\frac{1}{8}\sum_{j \in V} g_{1,j}\), \(\frac{1}{8}\sum_{j \in V} g_{2,j}\)</td><td>Crecimiento promedio de sus 8 vecinas</td></tr>
+      <tr><td><strong>objetivo</strong> \(y\)</td><td class="f">\(c_i - \mathrm{med}(c)\), con \(c_i = \dfrac{s_{i,t_0+3} - s_{i,t_0}}{3}\)</td><td>Cuánto crece la manzana por año por encima de la mediana. Cero es "crece como Bogotá"</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="f01">
+  <h2>Fórmulas del notebook 01</h2>
+
+  <h3><span class="etiqueta">§1</span>El valor del suelo</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Medida</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td>Escala del histograma</td><td class="f">\(\log_{10}(\mathrm{cop\_m2})\)</td><td>El precio va de 4 000 a 30 millones; en log se ve la forma</td></tr>
+      <tr><td>Brecha de precios</td><td class="f">\(p_{90} / p_{10}\)</td><td>El 10 % más caro vale 5,2 veces el 10 % más barato</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§2</span>Dónde se valoriza</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Columna</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>tadc</code></td><td class="f">\((P_{2026}/P_{2017})^{1/9} - 1\)</td><td>Por manzana, con dato en ambos años</td></tr>
+      <tr><td><code>tadc_ciudad</code></td><td class="f">\(\big(\mathrm{med}(P_{2026})/\mathrm{med}(P_{2017})\big)^{1/9} - 1\)</td><td>8,9 %. Es la TADC de la mediana, no la mediana de las TADC</td></tr>
+      <tr><td><code>vs_ciudad</code></td><td class="f">\(\mathrm{tadc} - \mathrm{tadc\_ciudad}\)</td><td>Positivo: se valoriza más que la ciudad</td></tr>
+      <tr><td><code>tadc_pct</code>, <code>vs_ciudad_puntos</code></td><td class="f">\(100 \times\) lo anterior, a un decimal</td><td>Columnas de <code>sectores_mas_valorizados_manzanas.csv</code></td></tr>
+      <tr><td>TADC del sector</td><td class="f">\(\mathrm{med}(\mathrm{tadc})\) entre sus manzanas</td><td>Solo sectores con 10 manzanas o más</td></tr>
+      <tr><td>Spearman \(\rho\)</td><td class="f">\(\mathrm{corr}\big(\mathrm{rango}(x),\ \mathrm{rango}(y)\big)\)</td><td>De −1 a 1. Mide si una variable sube cuando la otra sube, sin exigir una recta. Precio 2017 contra TADC: −0,44</td></tr>
+      <tr><td>Mediana por tramo</td><td class="f">\(\mathrm{med}(\mathrm{tadc})\) en 20 tramos iguales de precio 2017</td><td>La línea roja de "¿se valoriza más lo barato o lo caro?"</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§3</span>Zonas de empresas</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Columna</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>pct</code></td><td class="f">\(100 \cdot n_{\text{uso}} / \sum n\)</td><td>Parte de las manzanas con ese uso</td></tr>
+      <tr><td><code>crec_anual_pct</code></td><td class="f">\(100 \cdot \mathrm{med}(\mathrm{tadc})\)</td><td>Por uso, o por empresarial contra otros</td></tr>
+      <tr><td>Empresarial</td><td class="f">uso \(\in\) {comercio y oficinas, industrial, bodegas}</td><td>Según el uso predominante de la manzana</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§4</span>Qué variables se asocian con el precio</h3>
+  <p>El objetivo es \(y = \log_{10}(\mathrm{cop\_m2})\). La validación usa 5 pliegues por sector catastral (<code>GroupKFold</code>): ningún sector aparece a la vez en el entrenamiento y en la prueba. La columna <code>se_deja_fuera</code> de <code>validacion_01_espacial.csv</code> repite la prueba con cuadrículas de 2 y 5 km y con localidades.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Medida</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td>LightGBM</td><td class="f">\(\hat{y} = \hat{y}_0 + 0{,}05 \sum_{m=1}^{600} f_m(x)\)</td><td>Suma de 600 árboles, cada uno corrige el error de los anteriores. Tasa de aprendizaje 0,05, hasta 31 hojas</td></tr>
+      <tr><td>Ridge</td><td class="f">\(\min_\beta \sum_i (y_i - x_i^\top\beta)^2 + \alpha\lVert\beta\rVert^2\)</td><td>Referencia lineal. \(\alpha\) se elige entre 20 valores de 0,01 a 1 000; las variables se estandarizan</td></tr>
+      <tr><td><code>R2_log</code></td><td class="f">\(1 - \dfrac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}\)</td><td>Promedio de los 5 pliegues. 1 es perfecto; 0, igual que decir siempre el promedio</td></tr>
+      <tr><td><code>R2_desv</code></td><td class="f">desviación típica del \(R^2\) entre pliegues</td><td>Cuánto varía según los sectores de prueba</td></tr>
+      <tr><td><code>MAE</code></td><td class="f">\(\frac{1}{n}\sum \lvert P_i - 10^{\hat{y}_i} \rvert\)</td><td>Error promedio en pesos por m²</td></tr>
+      <tr><td><code>err_rel_mediano_%</code></td><td class="f">\(100\,\mathrm{med}\!\left(\dfrac{\lvert 10^{\hat{y}} - P \rvert}{P}\right) = 100\,\mathrm{med}\lvert 10^{\hat{y}-y} - 1\rvert\)</td><td>Error de una manzana típica: 9,8 % en el modelo completo</td></tr>
+      <tr><td>Importancia por permutación</td><td class="f">\(R^2_{\text{base}} - R^2_{\text{desordenado}}\)</td><td>Se desordena una variable, o una fuente entera, y se mide cuánto cae el \(R^2\). Por fuente se desordenan juntas</td></tr>
+      <tr><td><code>residuo</code></td><td class="f">\(e = y - \hat{y}\)</td><td>Positivo: la manzana vale más de lo que el modelo estima</td></tr>
+      <tr><td><code>sesgo</code>, <code>error_tipico</code></td><td class="f">\(\mathrm{med}(e)\), \(\mathrm{med}\lvert e \rvert\)</td><td>Por centralidad más cercana</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§5</span>Confiabilidad y deriva</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Medida</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td>IC 95 % por sector</td><td class="f">percentiles 2,5 y 97,5 de la métrica en 300 remuestreos de sectores completos</td><td>Rango de la métrica si hubieran salido otros sectores. Se remuestrea el sector porque dos manzanas vecinas casi no son dos datos</td></tr>
+      <tr><td>Intervalo empírico</td><td class="f">\(\hat{y} \pm q\), con \(q\) el cuantil de \(\lvert e \rvert\) en los otros pliegues</td><td>Margen que debería contener al precio real con la frecuencia pedida, 80 % o 90 %. No tiene garantía formal</td></tr>
+      <tr><td><code>cobertura_real_pct</code></td><td class="f">\(100 \cdot \frac{1}{n}\sum \mathbb{1}\big(\lvert e_i \rvert \le q\big)\), promedio entre pliegues</td><td>Debe parecerse a la confianza pedida</td></tr>
+      <tr><td>Margen en %</td><td class="f">\(100\,(10^{-q} - 1)\) a \(100\,(10^{q} - 1)\)</td><td>Al 90 %: de −34 % a +52 %. Es asimétrico por el logaritmo</td></tr>
+      <tr><td>Precio relativo anual</td><td class="f">\(\log_{10} P_t - \mathrm{med}(\log_{10} P_t)\)</td><td>Se quita el movimiento general del año para comparar años</td></tr>
+      <tr><td><code>psi_interanual</code></td><td class="f">PSI del precio relativo, \(t-1\) contra \(t\)</td><td>Ver <a href="#deriva">PSI, KS y Wasserstein</a></td></tr>
+      <tr><td><code>psi_contra_2017</code></td><td class="f">PSI del precio relativo, 2017 contra \(t\)</td><td>Cambio acumulado</td></tr>
+      <tr><td><code>psi_nominal</code></td><td class="f">PSI de \(\log_{10} P\), \(t-1\) contra \(t\)</td><td>Se mueve con la inflación. Se muestra como contraste</td></tr>
+      <tr><td><code>R2_contra_2026</code></td><td class="f">\(R^2\) entre el precio relativo de 2026 y la predicción de un modelo entrenado con otro año</td><td>Envejecimiento del modelo</td></tr>
+      <tr><td><code>err_rel_mediano_pct</code></td><td class="f">\(100\,\mathrm{med}\lvert 10^{\hat{y}-y} - 1\rvert\)</td><td>9,8 % con el precio de 2026; 16,5 % con el de 2017</td></tr>
+      <tr><td><code>sesgo_mediano_log10</code></td><td class="f">\(\mathrm{med}(y - \hat{y})\)</td><td>Si el modelo antiguo queda corrido hacia un lado</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="f02a">
+  <h2>Notebook 02: la ciudad</h2>
+  <p>El pronóstico separa el crecimiento en dos partes que se suman en logaritmo: lo que sube la ciudad (deriva) y lo que cada manzana le gana o le pierde (relativo). Aquí, \(s_t\) es el \(\log_{10}\) de la mediana de la ciudad, solo con manzanas de serie completa.</p>
+
+  <h3><span class="etiqueta">§1</span>El panel</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Columna</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>crecimiento_pct</code></td><td class="f">\(\mathrm{pct}\big(\mathrm{med}(\log_{10} P_t) - \mathrm{med}(\log_{10} P_{t-1})\big)\)</td><td>Crecimiento anual de la ciudad</td></tr>
+      <tr><td><code>pct_sin_cambio</code></td><td class="f">\(100 \cdot \frac{1}{n}\sum \mathbb{1}(P_{i,t} = P_{i,t-1})\)</td><td>Manzanas que no cambiaron ese año</td></tr>
+      <tr><td>Año congelado</td><td class="f">\(\mathrm{pct\_sin\_cambio} \gt 80\)</td><td>2022: Catastro no actualizó (100 %)</td></tr>
+      <tr><td><code>razon</code></td><td class="f">\(p_{90}/p_{10}\) por año</td><td>Pasó de 6,1 en 2017 a 5,1 en 2026</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§3</span>Seis métodos para la deriva</h3>
+  <p>\(T\) es el último año conocido y \(h\) los años hacia adelante.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Método</th><th>Pronóstico \(\hat{s}_{T+h}\)</th><th>Idea</th></tr></thead>
+    <tbody>
+      <tr><td>Caminata aleatoria</td><td class="f">\(s_T\)</td><td>Nada cambia</td></tr>
+      <tr><td>Deriva histórica</td><td class="f">\(s_T + h\,\dfrac{s_T - s_1}{T-1}\)</td><td>Sigue al ritmo de toda la serie. Es la TADC en logaritmo</td></tr>
+      <tr><td>Deriva reciente (4 años)</td><td class="f">\(s_T + h\,\dfrac{s_T - s_{T-4}}{4}\)</td><td>Sigue al ritmo de los últimos 4 años</td></tr>
+      <tr><td>Tendencia lineal</td><td class="f">\(a + b\,(T+h)\), con \(a, b\) por mínimos cuadrados</td><td>La recta que mejor pasa por toda la serie</td></tr>
+      <tr><td>Holt amortiguado</td><td class="f">\(\ell_t = \alpha s_t + (1-\alpha)(\ell_{t-1} + \phi b_{t-1})\)<br>\(b_t = \beta(\ell_t - \ell_{t-1}) + (1-\beta)\phi b_{t-1}\)<br>\(\hat{s}_{T+h} = \ell_T + (\phi + \dots + \phi^h)\,b_T\)</td><td>Suaviza nivel \(\ell\) y tendencia \(b\). Con \(\phi \lt 1\), la tendencia se va apagando</td></tr>
+      <tr><td>ARIMA(0,1,1) + deriva</td><td class="f">\(s_t - s_{t-1} = c + \varepsilon_t + \theta\,\varepsilon_{t-1}\)</td><td>Crecimiento constante \(c\), más un choque que afecta también al año siguiente</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="tabla"><table>
+    <thead><tr><th>Medida</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>error_medio_pct</code></td><td class="f">\(\frac{1}{h}\sum 100\,\dfrac{\lvert 10^{\hat{s}} - 10^{s} \rvert}{10^{s}}\)</td><td>Error promedio del pronóstico de la mediana</td></tr>
+      <tr><td><code>sesgo_pct</code></td><td class="f">\(\frac{1}{h}\sum 100\,\dfrac{10^{\hat{s}} - 10^{s}}{10^{s}}\)</td><td>Positivo: se pasó por encima</td></tr>
+      <tr><td><code>crec_anual_implicito_pct</code></td><td class="f">\(\mathrm{pct}\big(\text{promedio de } \Delta\hat{s}\big)\)</td><td>Lo que cada método supone por año</td></tr>
+      <tr><td><code>promedio</code>, <code>peor_origen</code></td><td class="f">promedio y máximo del error desde 2021, 2022 y 2023</td><td>Backtest desde varios orígenes</td></tr>
+      <tr><td><code>puesto_medio</code></td><td class="f">promedio del puesto en cada origen</td><td>Si un método gana solo desde un origen, se eligió por la ventana</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§3</span>Los escenarios</h3>
+  <div class="formula">\[\mathrm{trienio}_a = \frac{s_{a+3} - s_a}{3}\quad(a = 2017, \dots, 2023)\]</div>
+  <div class="tabla"><table>
+    <thead><tr><th>Escenario</th><th>Fórmula</th><th class="num">% anual</th><th>Trienio</th></tr></thead>
+    <tbody>
+      <tr><td>Bajo</td><td class="f">\(\min(\mathrm{trienio})\)</td><td class="num">4,3 %</td><td>2021-2024</td></tr>
+      <tr><td>Central</td><td class="f">\(\mathrm{med}(\mathrm{trienio})\)</td><td class="num">8,0 %</td><td>Mediana de los 7</td></tr>
+      <tr><td>Alto</td><td class="f">\(\max(\mathrm{trienio})\)</td><td class="num">14,5 %</td><td>2017-2020</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="f02b">
+  <h2>Notebook 02: qué manzana le gana a la ciudad</h2>
+  <h3><span class="etiqueta">§4</span>Los diez métodos</h3>
+  <p>Todos predicen \(y\), el crecimiento relativo. Se ajustan con 2020-2023 y se evalúan con 2023-2026.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Modelo</th><th>Predicción</th><th>Idea</th></tr></thead>
+    <tbody>
+      <tr><td>Línea base</td><td class="f">\(\hat{y} = 0\)</td><td>Todas crecen como la ciudad</td></tr>
+      <tr><td>Momentum</td><td class="f">\(\hat{y} = g_2 - \mathrm{med}(g_2^{\text{ajuste}})\)</td><td>Lo que subió sigue subiendo</td></tr>
+      <tr><td>Reversión a la media</td><td class="f">\(\hat{y} = a + b \cdot \mathrm{nivel\_rel}\)</td><td>Una recta. Con \(b \lt 0\), lo barato crece más</td></tr>
+      <tr><td>Ridge</td><td class="f">\(\min \sum (y - x^\top\beta)^2 + \alpha\lVert\beta\rVert^2\)</td><td>Lineal, con coeficientes encogidos. 25 valores de \(\alpha\)</td></tr>
+      <tr><td>ElasticNet</td><td class="f">\(\min \frac{1}{2n}\sum (y - x^\top\beta)^2 + \alpha\rho\lVert\beta\rVert_1 + \frac{\alpha(1-\rho)}{2}\lVert\beta\rVert^2\)</td><td>Lineal; además puede dejar coeficientes en cero. \(\rho\) entre 0,2, 0,5 y 0,9</td></tr>
+      <tr><td>Árbol de decisión</td><td class="f">promedio de \(y\) en la hoja</td><td>Hasta 6 niveles, mínimo 200 manzanas por hoja</td></tr>
+      <tr><td>KNN espacial</td><td class="f">\(\hat{y} = \dfrac{\sum_{j} y_j / d_j}{\sum_{j} 1/d_j}\)</td><td>Promedio de las 40 manzanas más cercanas en lon y lat, pesado por cercanía</td></tr>
+      <tr><td>Random Forest</td><td class="f">\(\frac{1}{300}\sum_m T_m(x)\)</td><td>300 árboles con muestras al azar</td></tr>
+      <tr><td>Extra Trees</td><td class="f">\(\frac{1}{300}\sum_m T_m(x)\)</td><td>Igual, con cortes elegidos más al azar</td></tr>
+      <tr><td>Gradient Boosting</td><td class="f">\(\hat{y}_0 + 0{,}05\sum_{m=1}^{400} f_m(x)\)</td><td>Árboles en secuencia, cada uno corrige al anterior</td></tr>
+      <tr><td>Ensamble</td><td class="f">promedio de los 3 con menor \(\frac{1}{n}\sum(y-\hat{y})^2\)</td><td>Árbol, Random Forest y Extra Trees. Se eligieron mirando el periodo de prueba</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§4-5</span>Las métricas</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Métrica</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>r2_relativo</code></td><td class="f">\(1 - \dfrac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}\)</td><td>Varianza del crecimiento relativo que se explica</td></tr>
+      <tr><td><code>mae_log10</code></td><td class="f">\(\frac{1}{n}\sum \lvert y_i - \hat{y}_i \rvert\)</td><td>Error típico, en log10 anual</td></tr>
+      <tr><td><code>rmse_log10</code></td><td class="f">\(\sqrt{\frac{1}{n}\sum (y_i - \hat{y}_i)^2}\)</td><td>Castiga más los errores grandes</td></tr>
+      <tr><td><code>error_precio_pct</code></td><td class="f">\(100\,\mathrm{med}\!\left(\dfrac{\lvert 10^{\hat{s}} - 10^{s} \rvert}{10^{s}}\right)\), con \(s = s_{2023} + 3\,(y + d)\) y \(\hat{s}\) igual con \(\hat{y}\)</td><td>Error en pesos a 3 años. \(d\) es la deriva real del periodo</td></tr>
+      <tr><td><code>spearman</code></td><td class="f">\(\mathrm{corr}\big(\mathrm{rango}(\hat{y}),\ \mathrm{rango}(y)\big)\)</td><td>¿Ordena bien las manzanas?</td></tr>
+      <tr><td><code>acierto_direccion</code></td><td class="f">\(100\cdot\frac{1}{n}\sum \mathbb{1}\big((\hat{y}_i \gt 0) = (y_i \gt 0)\big)\)</td><td>¿Acierta si crece más o menos que la ciudad?</td></tr>
+      <tr><td><code>lift_decil_top</code></td><td class="f">\(\mathrm{pct}(\bar{y}_{\text{decil 10}} + d) - \mathrm{pct}(\bar{y} + d)\)</td><td>Si se compra el 10 % señalado, cuántos puntos más crece. Los empates del corte pesan por igual: una predicción constante da 0</td></tr>
+      <tr><td>Pendiente de calibración (<code>pendiente</code>)</td><td class="f">\(b\) en \(\mathrm{real} = a + b \cdot \mathrm{predicho}\), sobre los 10 deciles, en %</td><td>0,19 en el ensamble: cuando anuncia 10 puntos, entrega 1,9</td></tr>
+      <tr><td><code>mejora_mae</code></td><td class="f">\(\mathrm{MAE}_{\text{base}} - \mathrm{MAE}_{\text{modelo}}\), en 300 remuestreos por sector</td><td>Le gana a la base con 95 % de confianza solo si el percentil 2,5 es mayor que 0</td></tr>
+      <tr><td>Importancia por permutación</td><td class="f">\(\mathrm{MAE}_{\text{desordenado}} - \mathrm{MAE}_{\text{base}}\)</td><td>Sobre Gradient Boosting, en 5 repeticiones y hasta 8 000 manzanas</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="f02c">
+  <h2>Notebook 02: el pronóstico</h2>
+  <h3><span class="etiqueta">§6</span>Parte C</h3>
+  <p>El término relativo \(r\) se calcula por pasos, y luego se suma a la deriva \(d\) del escenario:</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Paso</th><th>Fórmula</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td>Predicción</td><td class="f">\(r_0 = \) promedio de los modelos del ensamble, reajustados con 2020 y 2023</td><td>Se aplica sobre los datos de 2026</td></tr>
+      <tr><td>Centrado</td><td class="f">\(r_1 = r_0 - \mathrm{med}(r_0)\)</td><td>La manzana mediana queda en 0</td></tr>
+      <tr><td>Encogimiento</td><td class="f">\(f = \min(\max(\text{pendiente}, 0), 1) = 0{,}19\)</td><td>Corrige la exageración medida en la calibración</td></tr>
+      <tr><td>Tope</td><td class="f">\(u = p_{99}\lvert y_{\text{prueba}} \rvert\)</td><td>Equivale a ±44,2 % anual frente a la ciudad</td></tr>
+      <tr><td>Relativo final</td><td class="f">\(r = \mathrm{clip}(f \cdot r_1,\ -u,\ u)\)</td><td>El 90 % de las manzanas queda entre −0,40 % y +0,75 % frente a la ciudad</td></tr>
+    </tbody>
+  </table></div>
+  <p>El precio final se multiplica cuatro años, de 2026 a 2030. Las dos formas son la misma cuenta:</p>
+  <div class="formula">\[\mathrm{precio}_{2030} = \mathrm{precio}_{2026}\,(1+\text{deriva})^4\,(1+\text{relativo})^4 = 10^{\,\log_{10}\!\mathrm{precio}_{2026} + 4(d + r)}\]</div>
+  <div class="tabla"><table>
+    <thead><tr><th>Columna de <code>pronostico_manzanas.csv.gz</code></th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>cop_m2_2026</code></td><td class="f">\(10^{s_{2026}}\)</td><td>Valor de la serie en 2026</td></tr>
+      <tr><td><code>crec_relativo_pct</code></td><td class="f">\(\mathrm{pct}(r)\)</td><td>% anual relativo a la ciudad; no es la resta de las dos tasas</td></tr>
+      <tr><td><code>cop_m2_2030_bajo</code>, <code>_central</code>, <code>_alto</code></td><td class="f">\(10^{\,s_{2026} + 4(d + r)}\)</td><td>Uno por escenario</td></tr>
+      <tr><td><code>crec_anual_pct</code></td><td class="f">\(\mathrm{pct}(d_{\text{central}} + r)\)</td><td>Crecimiento anual en el escenario central</td></tr>
+      <tr><td><code>ganancia_cop_m2</code></td><td class="f">\(\mathrm{cop\_m2\_2030\_central} - \mathrm{cop\_m2\_2026}\)</td><td>Pesos ganados por m². Es mayor donde la base ya es cara</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="f02d">
+  <h2>Notebook 02: cuánto creerle</h2>
+  <h3><span class="etiqueta">§7</span>Confiabilidad</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Medida</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td>IC 95 % por sector</td><td class="f">percentiles 2,5 y 97,5 en 300 remuestreos de sectores</td><td>Para Spearman, lift y acierto de dirección</td></tr>
+      <tr><td>Error por manzana</td><td class="f">\(\lvert \mathrm{pct}(y) - \mathrm{pct}(\hat{y}) \rvert\), percentiles 50, 80 y 90</td><td>Mediana 2,6 %; percentil 90, 8,0 %</td></tr>
+      <tr><td><code>dentro_del_rango</code></td><td class="f">\(\min(\text{trienios previos}) \le \mathrm{trienio}_{t} \le \max(\text{trienios previos})\)</td><td>¿Los escenarios habrían contenido lo que pasó? Solo 1 de 3 veces</td></tr>
+      <tr><td><code>pendiente_reversion</code></td><td class="f">\(b\) en \(y = a + b\cdot\mathrm{nivel\_rel}\), por ventana de 3 años</td><td>Negativa las siete veces: de −0,019 a −0,051</td></tr>
+      <tr><td><code>spearman_misma_ventana</code></td><td class="f">\(\mathrm{corr}\big(\mathrm{rango}(\mathrm{nivel\_rel}),\ \mathrm{rango}(y)\big)\)</td><td>En la misma ventana</td></tr>
+      <tr><td><code>r2_fuera_de_tiempo</code></td><td class="f">\(R^2\) de la recta de la ventana anterior sobre la siguiente</td><td>Entre −0,20 y +0,11. Dos de cuatro veces, peor que la base</td></tr>
+      <tr><td><code>spearman_fuera_de_tiempo</code></td><td class="f">Spearman de esa misma predicción</td><td>Entre 0,28 y 0,40</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="etiqueta">§8</span>Desempeño</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Columna</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><code>mae_relativo</code></td><td class="f">\(\frac{1}{n}\sum \lvert \mathrm{pct}(y_i) - \mathrm{pct}(\hat{y}_i) \rvert\)</td><td>Error promedio: 4,35 en la base; 4,27 en el mejor</td></tr>
+      <tr><td><code>error_mediano_relativo</code></td><td class="f">\(\mathrm{med}\lvert \mathrm{pct}(y_i) - \mathrm{pct}(\hat{y}_i) \rvert\)</td><td>El de una manzana típica</td></tr>
+      <tr><td><code>sesgo_relativo</code></td><td class="f">\(\frac{1}{n}\sum \big(\mathrm{pct}(y_i) - \mathrm{pct}(\hat{y}_i)\big)\)</td><td>¿Se equivoca hacia un lado?</td></tr>
+      <tr><td><code>pendiente_calibracion</code></td><td class="f">\(b\) en \(y = a + b\,\hat{y}\), con todas las manzanas</td><td>0,76 con todas; 0,19 sin el 1 % más extremo o por deciles</td></tr>
+      <tr><td>Concentración</td><td class="f">\(\dfrac{\sum_{i \in \mathrm{peor\ 1\,\%}} (y_i - \hat{y}_i)^2}{\sum_i (y_i - \hat{y}_i)^2}\)</td><td>41 % del error cuadrático está en el 1 % de las manzanas</td></tr>
+      <tr><td><code>mae_base</code>, <code>mae_reversion</code>, <code>mae_ensamble</code></td><td class="f">\(\mathrm{mae\_relativo}\) por quintil de \(P_{2023}\)</td><td>El error se concentra en el tramo más barato</td></tr>
+      <tr><td><code>spearman_reversion_dentro</code></td><td class="f">Spearman dentro de cada quintil</td><td>0,31 y 0,33 en los extremos; cerca de 0 en los tres del medio</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="deriva">
+  <h2>PSI, KS y Wasserstein</h2>
+  <p>Miden cuánto cambia una distribución de un momento a otro. Son las mismas en los dos notebooks y están en <code>src/deriva.py</code>. \(b\) es la base y \(a\) el periodo nuevo.</p>
+  <div class="tabla"><table>
+    <thead><tr><th>Medida</th><th>Fórmula</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <tr><td><strong>PSI</strong><br>índice de estabilidad poblacional</td><td class="f">\(\sum_k (a_k - b_k)\,\ln\dfrac{a_k}{b_k}\)</td><td>\(b_k, a_k\): fracción en cada tramo, con tramos en los deciles de la base. Menos de 0,10: estable. De 0,10 a 0,25: moderada. Desde 0,25: fuerte</td></tr>
+      <tr><td><strong>KS</strong><br>Kolmogórov-Smirnov</td><td class="f">\(D = \max_x \lvert F_b(x) - F_a(x) \rvert\)</td><td>La mayor separación entre las dos curvas acumuladas, de 0 a 1</td></tr>
+      <tr><td><strong>Wasserstein</strong></td><td class="f">\(\dfrac{1}{\sigma_b}\displaystyle\int_0^1 \lvert F_b^{-1}(u) - F_a^{-1}(u) \rvert\,du\)</td><td>Cuánto se desplaza la distribución, en desviaciones típicas de la base</td></tr>
+    </tbody>
+  </table></div>
+  <div class="nota"><p>Un PSI bajo no garantiza que cada manzana esté bien. En 2026 el PSI es 0,02 y, aun así, 2 437 manzanas bajaron de valor.</p></div>
+</section>
+
+<section id="colores">
+  <h2>Convención de colores</h2>
+  <p>Los notebooks comparten cinco colores base, definidos en la primera celda de código de cada uno. No hay un significado único por color: se repiten con funciones distintas según el gráfico.</p>
+  <div class="paleta">
+    <div class="color"><i style="background:#264653"></i><div><b>AZUL</b><span>#264653</span><br>Dato principal, mediana, observado</div></div>
+    <div class="color"><i style="background:#2a9d8f"></i><div><b>VERDE</b><span>#2a9d8f</span><br>Crecimiento, resultado favorecido, escenario central</div></div>
+    <div class="color"><i style="background:#f4a261"></i><div><b>NARANJA</b><span>#f4a261</span><br>Segunda serie, morfología, percentiles 10 y 90</div></div>
+    <div class="color"><i style="background:#e76f51"></i><div><b>ROJO</b><span>#e76f51</span><br>Referencia o alerta: ciudad, congelado, destacados</div></div>
+    <div class="color"><i style="background:#b9c2c7"></i><div><b>GRIS (01)</b><span>#b9c2c7</span><br>Dato secundario, contexto</div></div>
+    <div class="color"><i style="background:#9aa5ab"></i><div><b>GRIS (02)</b><span>#9aa5ab</span><br>El mismo papel, un tono más oscuro</div></div>
+  </div>
+
+  <h3>Escalas de los mapas</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Escala</th><th>Color</th><th>Dónde</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><code>YlGnBu</code><br>secuencial</td><td><div class="escala" style="background:linear-gradient(90deg,#ffffd9,#c7e9b4,#41b6c4,#225ea8,#081d58)"></div><div class="esc-tope"><span>barato</span><span>caro</span></div></td><td>01 §1, valor 2026; 02 §6, precio 2030</td><td>Más oscuro, más caro. El 01 usa rangos fijos; el 02, escala logarítmica</td></tr>
+      <tr><td><code>PiYG</code><br>divergente</td><td><div class="escala" style="background:linear-gradient(90deg,#8e0152,#de77ae,#f7f7f7,#7fbc41,#276419)"></div><div class="esc-tope"><span>menos que la ciudad</span><span>más</span></div></td><td>01 §2, <code>vs_ciudad</code></td><td>Centro en 0. Límites en el percentil 97. Gris claro: sin dato</td></tr>
+      <tr><td><code>RdBu_r</code><br>divergente</td><td><div class="escala" style="background:linear-gradient(90deg,#053061,#4393c3,#f7f7f7,#d6604d,#67001f)"></div><div class="esc-tope"><span>vale menos</span><span>vale más</span></div></td><td>01 §4, residuo</td><td>Rojo: la manzana vale <strong>más</strong> de lo que estima el modelo. Límites en ±0,3</td></tr>
+      <tr><td><code>RdYlGn</code><br>divergente</td><td><div class="escala" style="background:linear-gradient(90deg,#a50026,#f46d43,#ffffbf,#66bd63,#006837)"></div><div class="esc-tope"><span>menos que la ciudad</span><span>más</span></div></td><td>02 §6, <code>crec_relativo_pct</code></td><td>Verde: crecería más. Límites en el percentil 97</td></tr>
+    </tbody>
+  </table></div>
+  <div class="aviso"><p><strong>El rojo se lee al revés entre mapas.</strong> En el residuo del 01, rojo es "vale más de lo estimado". En el pronóstico del 02, rojo es "crecería menos". Conviene mirar siempre el título y la leyenda.</p></div>
+
+  <h3>Qué significa cada color en cada gráfico</h3>
+  <div class="tabla"><table>
+    <thead><tr><th>Notebook</th><th>Gráfico</th><th>Lectura de los colores</th></tr></thead>
+    <tbody>
+      <tr><td>01 §1</td><td>Histograma del precio</td><td><span class="muestra" style="background:#264653"></span>barras <span class="muestra" style="background:#e76f51"></span>mediana <span class="muestra" style="background:#f4a261"></span>p10 y p90</td></tr>
+      <tr><td>01 §1</td><td>Rango de precios</td><td><span class="muestra" style="background:#264653"></span>mediana <span class="muestra" style="background:#2a9d8f"></span>p25 y p75 <span class="muestra" style="background:#b9c2c7"></span>mínimo, p5, p95 y máximo</td></tr>
+      <tr><td>01 §1</td><td>Mapa de valor</td><td><span class="muestra" style="background:#e76f51"></span>estrellas: las ocho centralidades</td></tr>
+      <tr><td>01 §2</td><td>Mediana y distribución</td><td><span class="muestra" style="background:#264653"></span>mediana de la ciudad <span class="muestra" style="background:#2a9d8f"></span>histograma de TADC <span class="muestra" style="background:#e76f51"></span>TADC de la ciudad</td></tr>
+      <tr><td>01 §2</td><td>Sectores y lo barato o caro</td><td><span class="muestra" style="background:#2a9d8f"></span>sectores <span class="muestra" style="background:#264653"></span>puntos: manzanas <span class="muestra" style="background:#e76f51"></span>ciudad y mediana por tramo; línea negra punteada: ciudad</td></tr>
+      <tr><td>01 §3</td><td>Precio por uso</td><td><span class="muestra" style="background:#e76f51"></span>empresarial <span class="muestra" style="background:#b9c2c7"></span>otros usos</td></tr>
+      <tr><td>01 §3</td><td>Mapa empresarial</td><td><span class="muestra" style="background:#e76f51"></span>comercio y oficinas <span class="muestra" style="background:#264653"></span>industrial <span class="muestra" style="background:#2a9d8f"></span>bodegas <span class="muestra" style="background:#e6eaec"></span>otros</td></tr>
+      <tr><td>01 §4</td><td>Correlación e importancia</td><td><span class="muestra" style="background:#264653"></span>ubicación <span class="muestra" style="background:#f4a261"></span>morfología <span class="muestra" style="background:#e76f51"></span>estrato <span class="muestra" style="background:#2a9d8f"></span>uso</td></tr>
+      <tr><td>01 §5</td><td>PSI del precio</td><td><span class="muestra" style="background:#264653"></span>contra el año anterior <span class="muestra" style="background:#f4a261"></span>contra 2017 <span class="muestra" style="background:#b9c2c7"></span>umbral 0,10</td></tr>
+      <tr><td>02 §1</td><td>Panel de la ciudad</td><td><span class="muestra" style="background:#264653"></span>mediana <span class="muestra" style="background:#2a9d8f"></span>crecimiento <span class="muestra" style="background:#e76f51"></span>año congelado <span class="muestra" style="background:#9aa5ab"></span>p10 <span class="muestra" style="background:#f4a261"></span>p90</td></tr>
+      <tr><td>02 §3</td><td>Backtests</td><td><span class="muestra" style="background:#264653"></span>observado, ajuste <span class="muestra" style="background:#e76f51"></span>observado, prueba. Los métodos usan el ciclo por defecto de matplotlib, sin un significado propio</td></tr>
+      <tr><td>02 §5</td><td>Deciles</td><td><span class="muestra" style="background:#2a9d8f"></span>mejor \(R^2\) <span class="muestra" style="background:#f4a261"></span>mejor orden <span class="muestra" style="background:#9aa5ab"></span>momentum <span class="muestra" style="background:#e76f51"></span>ciudad</td></tr>
+      <tr><td>02 §5</td><td>Calibración y mejora</td><td><span class="muestra" style="background:#264653"></span>modelo <span class="muestra" style="background:#e76f51"></span>referencia: calibración perfecta o mejora cero <span class="muestra" style="background:#9aa5ab"></span>intervalos</td></tr>
+      <tr><td>02 §5</td><td>Importancia</td><td><span class="muestra" style="background:#2a9d8f"></span>barras</td></tr>
+      <tr><td>02 §6</td><td>Escenarios</td><td><span class="muestra" style="background:#264653"></span>observado <span class="muestra" style="background:#9aa5ab"></span>bajo <span class="muestra" style="background:#2a9d8f"></span>central <span class="muestra" style="background:#f4a261"></span>alto</td></tr>
+      <tr><td>02 §7</td><td>Deriva de concepto</td><td><span class="muestra" style="background:#264653"></span>pendiente de reversión <span class="muestra" style="background:#2a9d8f"></span>crecimiento de la ciudad</td></tr>
+    </tbody>
+  </table></div>
+</section>
+</main>
+</div>
+
+<script>
+(function () {
+  var ini = document.getElementById("p-ini"), fin = document.getElementById("p-fin"), n = document.getElementById("anios");
+  var res = document.getElementById("res-tadc"), txt = document.getElementById("res-texto");
+  var coma = function (x, d) { return x.toFixed(d).replace(".", ","); };
+  function calcular() {
+    var a = parseFloat(ini.value), b = parseFloat(fin.value), k = parseFloat(n.value);
+    if (!(a > 0 && b > 0 && k > 0)) {
+      res.textContent = "Faltan datos";
+      txt.textContent = "Escribe dos precios y un número de años mayores que cero.";
+      return;
+    }
+    var f = Math.pow(b / a, 1 / k);
+    res.textContent = coma(100 * (f - 1), 1) + " % anual";
+    txt.textContent = "El precio se multiplicó por " + coma(b / a, 2) + ". Cada año se multiplica por " + coma(f, 3) + ": " + coma(f, 3) + " elevado a " + k + " da " + coma(Math.pow(f, k), 2) + ".";
+  }
+  [ini, fin, n].forEach(function (el) { el.addEventListener("input", calcular); });
+})();
+</script>

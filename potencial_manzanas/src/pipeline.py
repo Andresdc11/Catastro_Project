@@ -30,7 +30,8 @@ OUTPUT_DIR = PACKAGE_DIR / "outputs"
 SEED = 42
 
 HISTORY_FEATURES = [
-    "log_precio_inicio",
+    # el precio entra solo relativo a la ciudad: el nominal cambia con la inflacion y
+    # le permitiria al modelo reconocer el periodo en vez de la manzana
     "precio_relativo_ciudad",
     "crecimiento_1a_previo",
     "crecimiento_3a_previo",
@@ -43,8 +44,8 @@ SPATIAL_FEATURES = [
     "dist_centro_historico_km", "dist_centro_internacional_km",
     "dist_zona_t_km", "dist_calle_100_km", "dist_usaquen_km",
     "dist_salitre_km", "dist_aeropuerto_km", "dist_centro_sur_km",
-    "dist_centro_cercano_km", "dist_cerros_km", "azimut_sin",
-    "azimut_cos", "vecinos_500m", "vecinos_1km", "dist_vecino_8_km",
+    "dist_centro_cercano_km", "dist_cerros_km", "pbdir_sin",
+    "pbdir_cos", "vecinos_500m", "vecinos_1km", "dist_vecino_8_km",
 ]
 MORPHOLOGY_FEATURES = [
     "indice_construccion", "indice_ocupacion", "pisos_prom_pond",
@@ -239,8 +240,12 @@ def metricas(y, score, fraccion_alta):
     }
 
 
-def validar_temporalmente(training, fraccion_alta):
-    """Predice cada origen usando solo ventanas anteriores."""
+def validar_temporalmente(training, fraccion_alta, solo_terminadas=True):
+    """Predice cada origen usando solo ventanas ya terminadas en ese año (fin <= origen).
+
+    Con ``solo_terminadas=False`` repite la regla anterior (origen < origen validado),
+    que entrena con precios posteriores al origen. Queda solo para medir esa diferencia.
+    """
     history_cols = [c for c in HISTORY_FEATURES if c in training.columns]
     spatial_cols = [c for c in SPATIAL_FEATURES if c in training.columns]
     specs = {
@@ -251,9 +256,14 @@ def validar_temporalmente(training, fraccion_alta):
     origins = sorted(training["origen"].unique())
     detail, prediction_frames = [], []
     for valid_origin in origins:
-        train = training[training["origen"] < valid_origin]
+        if solo_terminadas:
+            train = training[training["fin"] <= valid_origin]
+        else:
+            train = training[training["origen"] < valid_origin]
         valid = training[training["origen"] == valid_origin]
-        if train["origen"].nunique() < 2 or valid.empty:
+        if train.empty or valid.empty:
+            continue
+        if not solo_terminadas and train["origen"].nunique() < 2:
             continue
         y_train = train["alto_potencial_historico"].to_numpy()
         y_valid = valid["alto_potencial_historico"].to_numpy()
@@ -393,6 +403,8 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
     metrics_df, predictions, specs = validar_temporalmente(training, fraccion_alta)
     guardar_csv(metrics_df, OUTPUT_DIR / "backtest_metricas.csv")
     guardar_csv(predictions, OUTPUT_DIR / "backtest_predicciones.csv.gz")
+    metricas_solapadas, _, _ = validar_temporalmente(training, fraccion_alta, solo_terminadas=False)
+    guardar_csv(metricas_solapadas, OUTPUT_DIR / "backtest_metricas_solapado.csv")
     summary = (metrics_df.groupby("modelo", as_index=False)
                .agg(origenes=("origen_validacion", "nunique"),
                     promedio_precision=("promedio_precision", "mean"),
@@ -400,7 +412,8 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
                     precision_top_fraccion=("precision_top_fraccion", "mean"),
                     lift_top_fraccion=("lift_top_fraccion", "mean"),
                     brier=("brier", "mean")))
-    summary = summary.sort_values(["promedio_precision", "lift_top_fraccion"],
+    # el uso del ranking es revisar el grupo priorizado: se elige por lift promedio del top
+    summary = summary.sort_values(["lift_top_fraccion", "promedio_precision"],
                                   ascending=False)
     guardar_csv(summary, OUTPUT_DIR / "backtest_resumen.csv")
 
@@ -443,6 +456,17 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
     forecast["score_potencial_0_100"] = 100 * forecast["ranking_percentil"]
     forecast["candidato_top_fraccion"] = (
         forecast["puesto_ranking"] <= int(math.ceil(fraccion_alta * len(forecast))))
+    # caida fuerte: el valor baja a menos de la mitad en un año. Se marca, no se excluye:
+    # el modelo no sabe si la caida es un error de Catastro o una decision de fondo
+    cambio_anual = np.log(panel).diff(axis=1)
+    caida_fuerte = cambio_anual < -math.log(2)
+    anios_recientes = [a for a in range(final_origin - horizonte + 1, final_origin + 1) if a in panel.columns]
+    forecast["caida_fuerte_ultimo_anio"] = forecast["MANCODIGO"].map(caida_fuerte[final_origin]).fillna(False).astype(bool)
+    forecast["caida_fuerte_%da" % horizonte] = forecast["MANCODIGO"].map(
+        caida_fuerte[anios_recientes].any(axis=1)).fillna(False).astype(bool)
+    sin_caida = ~forecast["caida_fuerte_%da" % horizonte]
+    forecast["puesto_sin_caidas"] = forecast.loc[sin_caida, "score_modelo"].rank(
+        method="first", ascending=False).astype("Int64")
     forecast["modelo"] = chosen
     forecast["lift_ic95_inferior_backtest"] = ci["lift_ic95_inferior"]
     forecast["lift_ic95_superior_backtest"] = ci["lift_ic95_superior"]
@@ -457,7 +481,7 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
     latest_cols = [c for c in model_cols if c in latest_valid.columns]
     if len(latest_valid) > 0:
         fitted_for_importance = crear_modelo(chosen)
-        earlier = training[training["origen"] < latest_origin]
+        earlier = training[training["fin"] <= latest_origin]
         fitted_for_importance.fit(earlier[latest_cols], earlier["alto_potencial_historico"].to_numpy())
         perm = permutation_importance(
             fitted_for_importance, latest_valid[latest_cols],
@@ -507,7 +531,7 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
         "- Corte y horizonte: %s–%s (%s años)." % (final_origin, future_end, horizonte),
         "- Objetivo histórico: grupo superior del %.0f%% en crecimiento anual ajustado por precio inicial." % (
             fraccion_alta * 100),
-        "- Mejor modelo por promedio de average precision: `%s`." % chosen,
+        "- Mejor modelo por lift promedio del top: `%s`." % chosen,
         "- Lift fuera de tiempo agregado: %.2f× (IC sectorial 95%% %.2f–%.2f)." % (
             ci["lift_media"], ci["lift_ic95_inferior"], ci["lift_ic95_superior"]),
         "- Validación temporal más reciente: origen %s." % latest_origin,
@@ -518,6 +542,8 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
         "",
         "El ranking futuro es exploratorio: el puntaje del clasificador no se calibró como probabilidad de rentabilidad y aún no hay avalúos 2029 para validarlo.",
         "El intervalo remuestrea sectores sobre predicciones fuera de tiempo; resume incertidumbre espacial, no toda la variación entre periodos.",
+        "Cada origen se valida entrenando solo con ventanas ya terminadas (fin <= origen).",
+        "Las columnas caida_fuerte_* marcan manzanas cuyo valor bajó a menos de la mitad en un año: hay que saber por qué antes de considerarlas.",
         "",
         "## Primeras 20 manzanas del ranking",
         "",
@@ -540,7 +566,7 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
         "ventanas_entrenamiento": sorted(int(x) for x in training["origen"].unique()),
         "ventanas_descartadas": discarded,
         "origen_validacion_mas_reciente": latest_origin,
-        "mejor_modelo_por_promedio_precision": chosen,
+        "mejor_modelo_por_lift": chosen,
         "lift_oof_sector_bootstrap": ci,
         "lift_validacion_mas_reciente": latest_lift,
         "respaldo_temporal": backtest_supported,
@@ -553,6 +579,8 @@ def ejecutar(horizonte=3, fraccion_alta=0.20):
             "La capacidad de desarrollo legal no se puede determinar sin parametros POT por predio.",
             "El periodo objetivo futuro aun no tiene avalúos observados para validarlo.",
             "El intervalo bootstrap por sector no mide toda la variacion temporal entre ventanas.",
+            "El backtest entrena solo con ventanas terminadas en el origen validado; el origen 2020 tiene una sola ventana.",
+            "Las manzanas con caida_fuerte_* se marcan pero no se excluyen del ranking.",
         ],
     }
     with (OUTPUT_DIR / "informe_ejecucion.json").open("w", encoding="utf-8") as fh:

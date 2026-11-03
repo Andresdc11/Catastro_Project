@@ -103,8 +103,9 @@ borde = d.groupby(banda)["lon"].quantile(.99).rolling(5, center=True, min_period
 d["dist_cerros_km"] = ((banda.map(borde) - d["lon"]).clip(lower=0) * KM_LON).round(3)
 
 lo0, la0 = C.CENTROS["centro_historico"]
+# pbdir: direccion de la manzana vista desde la Plaza de Bolivar
 rumbo = np.arctan2((d["lon"] - lo0) * KM_LON, (d["lat"] - la0) * KM_LAT)   # 0 = norte
-d["azimut_sin"], d["azimut_cos"] = np.sin(rumbo).round(4), np.cos(rumbo).round(4)
+d["pbdir_sin"], d["pbdir_cos"] = np.sin(rumbo).round(4), np.cos(rumbo).round(4)
 
 arbol = cKDTree(xy)
 d["vecinos_500m"] = [len(v) - 1 for v in arbol.query_ball_point(xy, .5)]
