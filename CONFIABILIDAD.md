@@ -15,11 +15,11 @@ medida calculada.
 
 | Resultado | Confianza | Por qué | Úsalo para | No lo uses para |
 |---|---|---|---|---|
-| Precio estimado 2026 (`01`) | **Alta** para comparar, **media** para una manzana | R² 0,79 (IC 0,76-0,81) en sectores no vistos; margen del 90 % de −34 % a +52 % | ubicar una manzana frente a la ciudad | tasar un lote |
+| Precio estimado 2026 (`01`) | **Alta** para comparar, **media** para una manzana | R² 0,79 (IC 0,76-0,81) en sectores no vistos, 0,42 en localidades no vistas; margen del 90 % de −34 % a +52 % | ubicar una manzana frente a la ciudad | tasar un lote o estimar una zona sin vecinos en los datos |
 | Orden por reversión a la media (`02`) | **Media** | Spearman 0,32 (IC 0,26-0,37); señal en las siete ventanas | filtrar candidatas | calcular un retorno |
-| Crecimiento relativo por manzana (`02`) | **Baja** | ningún modelo mejora el error de la línea base; error mediano de 2,6 puntos anuales | nada por sí solo | decidir entre dos manzanas |
+| Crecimiento relativo por manzana (`02`) | **Baja** | ningún modelo mejora el error de la línea base; error mediano de 2,6 % anual frente a la ciudad | nada por sí solo | decidir entre dos manzanas |
 | Escenarios de la ciudad a 2030 (`02`) | **Baja a media** | solo 1 de 3 orígenes quedó dentro del rango; los otros dos, por debajo | poner a prueba una compra en el escenario bajo | tomar el 8,0 % como lo esperado |
-| Grupos de comportamiento (`03`) | **Media** | 75 % sigue en su grupo a tres años; el grupo "medio y quieto" es frágil | describir el comportamiento reciente | etiquetar una manzana de forma permanente |
+| Grupos de comportamiento (`03`) | **Media** | 75 % sigue en su grupo a tres años; el grupo "medio y quieto" es frágil; cinco es una elección: con 8 o más grupos la partición es otra | describir el comportamiento reciente | etiquetar una manzana de forma permanente |
 | Oportunidad (`03`) | **Alta** como historia, **baja** como predicción | el 6 % del top 10 % se repite, menos que el 10 % del azar | investigar qué zonas subieron y por qué | anticipar qué zonas van a subir |
 | Ranking de potencial 2026-2029 (`potencial_manzanas`) | **Baja** | lift de 1,23× (IC 1,11 a 1,36), algo optimista; el 73 % de las primeras 500 acaba de caer | decidir qué zonas revisar, separando las caídas | priorizar compras o confiar en el orden fino |
 
@@ -44,6 +44,13 @@ medida calculada.
    4,5 y 1,7 puntos en los tres orígenes que se pueden probar.
 5. **Los mayores crecimientos pronosticados son rebotes.** Los seis sectores que
    encabezan la tabla del notebook 02 cayeron a 295 200 COP/m² en 2026.
+6. **El lift del notebook 02 dependía del orden de las filas; ya se corrigió.** Los empates del
+   corte se resolvían por posición, y por eso la línea base, que predice lo mismo para todas,
+   daba +2,95 puntos. Repartiéndolos por igual da 0, y la reversión baja de +7,1 a **+6,2**.
+7. **El precio estimado pierde precisión en zonas sin vecinos.** El R² pasa de 0,79 por sector
+   a 0,67 con cuadrículas de 5 km y a 0,42 por localidad completa.
+8. **El encogimiento del pronóstico es inestable.** Sale 0,19 con 2023-2026 y 0,63 con 2022-2025.
+   El R² del ensamble, en cambio, casi no dependía de haberlo elegido mirando la prueba.
 
 ## Dos cosas que se llaman "deriva"
 
@@ -77,12 +84,13 @@ diferencia mínima resulta significativa.
 | **R²** | $1 - \sum(y-\hat{y})^2 / \sum(y-\bar{y})^2$ | ¿cuánta varianza explica? | 0 = la media; negativo = peor que la media |
 | **Error relativo mediano** | $\text{mediana}\lvert \hat{P}-P\rvert / P$ | ¿de cuánto es el error típico? | menor es mejor |
 | **Spearman** | correlación de los rangos | ¿ordena bien? | 0 = azar |
-| **Lift del decil superior** | crecimiento del 10 % señalado menos el de la ciudad | ¿cuánto gana lo señalado? | 0 puntos = sin señal |
+| **Lift del decil superior** | crecimiento del 10 % señalado menos el de la ciudad; los empates del corte pesan por igual | ¿cuánto gana lo señalado? | 0 puntos = sin señal |
 | **Lift del top 20 %** | precisión en el top 20 % / prevalencia | ¿concentra los casos positivos? | 1× = sin señal |
 | **AUC** | probabilidad de puntuar más alto a un positivo que a un negativo | ¿separa las clases? | 0,5 = azar |
 | **Brier skill** | $1 - \text{Brier}_{\text{modelo}} / \text{Brier}_{\text{sin señal}}$ | ¿sirve el puntaje como probabilidad? | menor o igual a 0 = no |
 | **IC 95 % por sector** | percentiles 2,5 y 97,5 remuestreando sectores completos | ¿es ruido? | si cruza la referencia, no es concluyente |
-| **Intervalo conforme** | $\hat{y} \pm q$, con $q$ cuantil del error en otros pliegues | ¿cuál es el margen de una estimación? | cobertura cercana a lo pedido |
+| **Intervalo empírico** | $\hat{y} \pm q$, con $q$ cuantil del error en otros pliegues; sin garantía formal, porque las manzanas de un sector no son independientes | ¿cuál es el margen de una estimación? | cobertura cercana a lo pedido |
+| **Crecimiento relativo** | $\text{pct}(r) = 100\,(10^{r}-1)$, con $r$ en log10 | ¿cuánto más rápido crece que la ciudad? | no es la resta de tasas: en puntos, se multiplica por $(1+g)$, con $g$ la tasa de la ciudad |
 | **Cobertura de escenarios** | fracción de orígenes en que lo observado cayó dentro del rango | ¿contiene el rango lo que pasa? | mientras más alta, mejor |
 
 ### Agrupamiento
@@ -104,6 +112,9 @@ diferencia mínima resulta significativa.
 |---|---|
 | R² en sectores no vistos | 0,787 (IC 0,757 a 0,812) |
 | Error relativo mediano | 9,8 % (IC 9,1 % a 10,4 %) |
+| R² y error dejando fuera cuadrículas de 2 km | 0,76 y 11,3 % |
+| R² y error dejando fuera cuadrículas de 5 km | 0,67 y 15,4 % |
+| R² y error dejando fuera localidades completas | 0,42 y 19,6 %; peor pliegue −0,08 |
 | Margen del 80 % | −23 % a +30 %; cobertura 80 %, peor pliegue 76 % |
 | Margen del 90 % | −34 % a +52 %; cobertura 90 %, peor pliegue 87 % |
 | Margen del 90 % por zona | +31 % en la Zona T, +77 % en Usaquén |
@@ -117,22 +128,30 @@ diferencia mínima resulta significativa.
 |---|---|
 | Modelos que mejoran el MAE de la línea base con 95 % de confianza | 0 de 10 |
 | Spearman de la reversión a la media | 0,318 (IC 0,261 a 0,370) |
-| Lift del decil superior, reversión | +7,1 puntos (IC +1,9 a +9,9); en otras ventanas +1,5 a +7,8 |
+| Lift del decil superior, reversión | +6,2 puntos (IC +1,9 a +9,9); en otras ventanas +1,5 a +7,9 |
 | Acierto de dirección, reversión | 60,3 % (IC 57,5 % a 63,0 %) |
-| Error por manzana (p50, p80, p90) | 2,6, 5,9 y 8,0 puntos anuales |
+| Error por manzana (p50, p80, p90) | 2,6 %, 5,9 % y 8,0 % anual frente a la ciudad |
 | Pendiente de la reversión por ventana | −0,019 a −0,051; siempre negativa |
 | R² fuera de tiempo de la reversión | −0,20 a +0,11 |
 | Cobertura de los escenarios | 1 de 3 orígenes |
 | PSI de `g2` y `vec_g2` | 2,8 y 3,6 (2020-2023): **fuerte** |
 | PSI de `nivel_rel` | 0,01 y 0,09: **estable** |
 | PSI de la predicción del ensamble | 0,02: **estable** |
-| MAE: línea base, reversión y ensamble encogido | 4,35, 4,29 y 4,27 puntos anuales |
+| MAE: línea base, reversión y ensamble encogido | 4,35 %, 4,29 % y 4,27 % anual frente a la ciudad |
 | Pendiente de calibración del ensamble | 0,76 con todas; 0,19 sin el 1 % de predicciones extremas |
-| MAE por tramo de precio | unos 8,5 puntos en el más barato; cerca de 3 en los demás |
+| MAE por tramo de precio | unos 8,5 % en el más barato; cerca de 3 % en los demás |
 | Spearman de la reversión dentro de cada tramo | 0,31, 0,09, 0,06, −0,04 y 0,33, de barato a caro |
+| Ensamble elegido en la prueba y en validación (R²) | 0,135 y 0,134 |
+| Ensamble elegido en la prueba y en validación (Spearman) | 0,18 y 0,27 |
+| Encogimiento con 2023-2026 y con 2022-2025 | 0,19 y 0,63 |
 
-El ensamble se eligió y se calibró con el mismo periodo con que se evalúa: su R² de 0,135
-es optimista.
+El ensamble que usa el pronóstico se eligió y se calibró con el periodo con que se evalúa, así que
+sus métricas son **exploratorias**. Una evaluación del todo independiente no cabe en diez años: la
+validación 2022-2025 comparte 2023-2025 con la prueba. El pronóstico puede usar todos los datos; lo
+que no se debe hacer es presentar esas métricas como una prueba limpia.
+
+**Hay tres cohortes.** La mediana de 2026 es 2,59 M con todos los registros (`01`), 2,65 M con
+las 40 610 manzanas de serie completa (`02`, Parte A) y 2,80 M con las 37 428 del pronóstico.
 
 ### `03_clusters`: comportamiento
 
@@ -147,6 +166,9 @@ es optimista.
 | PSI del peso de los grupos | 0,04: **estable** |
 | PSI de los rasgos | `tadc_reciente` 0,68 y `tadc_total` 0,33: **fuerte**; `nivel` 0,09 e `inercia` 0,04: **estable** |
 | Persistencia de la oportunidad | Spearman −0,09; se repite el 6 % del top 10 % |
+| Oportunidad con curva cruzada por sector | Spearman 0,998 con la original: el ajuste dentro de muestra no la altera |
+| ARI con la partición oficial, quitando variables | 0,92 a 0,95; con otra semilla, 0,94 |
+| ARI con la partición oficial, con otro k | 0,74 (k = 4), 0,95 (6), 0,43 (8), 0,33 (10), 0,29 (12) |
 
 ### `potencial_manzanas`: ranking
 
@@ -199,6 +221,7 @@ es optimista.
 | `src/deriva.py` | las funciones de PSI, KS y Wasserstein, y los umbrales |
 | `data/processed/deriva_01_precio.csv`, `deriva_01_modelo.csv` | deriva anual del precio y antigüedad del modelo |
 | `data/processed/deriva_02_variables.csv`, `deriva_02_ventanas.csv`, `deriva_02_escenarios.csv` | variables, reversión por ventana y cobertura de escenarios |
-| `data/processed/desempeno_02_modelos.csv`, `desempeno_02_tramos.csv` | desempeño del modelo, global y por tramo de precio |
-| `data/processed/deriva_03_rasgos.csv`, `deriva_03_migracion.csv`, `deriva_03_oportunidad.csv` | rasgos, migración entre grupos y persistencia de la oportunidad |
+| `data/processed/validacion_01_espacial.csv` | validación dejando fuera zonas cada vez más grandes |
+| `data/processed/desempeno_02_modelos.csv`, `desempeno_02_tramos.csv`, `desempeno_02_seleccion.csv` | desempeño del modelo, global, por tramo de precio y eligiendo sin mirar la prueba |
+| `data/processed/deriva_03_rasgos.csv`, `deriva_03_migracion.csv`, `deriva_03_oportunidad.csv`, `deriva_03_sensibilidad.csv` | rasgos, migración entre grupos, persistencia de la oportunidad y sensibilidad a variables y k |
 | `potencial_manzanas/outputs/deriva_variables.csv`, `backtest_comparacion_reglas.csv`, `rebote_caidas.csv`, `ranking_caidas.csv` | variables, comparación de reglas de entrenamiento, rebote histórico y caídas en el ranking |

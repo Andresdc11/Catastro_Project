@@ -44,8 +44,8 @@ SPATIAL_FEATURES = [
     "dist_centro_historico_km", "dist_centro_internacional_km",
     "dist_zona_t_km", "dist_calle_100_km", "dist_usaquen_km",
     "dist_salitre_km", "dist_aeropuerto_km", "dist_centro_sur_km",
-    "dist_centro_cercano_km", "dist_cerros_km", "azimut_sin",
-    "azimut_cos", "vecinos_500m", "vecinos_1km", "dist_vecino_8_km",
+    "dist_centro_cercano_km", "dist_cerros_km", "pbdir_sin",
+    "pbdir_cos", "vecinos_500m", "vecinos_1km", "dist_vecino_8_km",
 ]
 MORPHOLOGY_FEATURES = [
     "indice_construccion", "indice_ocupacion", "pisos_prom_pond",
