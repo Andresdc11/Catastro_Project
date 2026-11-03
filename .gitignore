@@ -4,6 +4,7 @@ data/processed/
 potencial_manzanas/outputs/
 
 # python y jupyter
+.venv/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/

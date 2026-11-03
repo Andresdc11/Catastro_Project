@@ -51,9 +51,11 @@ del avalúo disponible.
 
 ## Ejecución
 
-Desde esta carpeta, con el entorno `geoenv` del proyecto:
+`python ejecutar_todo.py`, en la raíz del proyecto, ya incluye este módulo. Para correrlo
+por separado, hacen falta los pasos previos (ver el [README principal](../README.md)).
+Desde esta carpeta, con el entorno del proyecto activado:
 
-    conda run -n geoenv python run.py
+    python run.py
 
 Opciones:
 

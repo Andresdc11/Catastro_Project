@@ -1,25 +1,32 @@
 # -*- coding: utf-8 -*-
 """Rutas y parametros del proyecto."""
+from math import cos, radians
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
 RAW = RAIZ / "data" / "raw"
 PROC = RAIZ / "data" / "processed"
 
-# el GeoJSON pesa 1.8 GB: se lee donde esta, no se copia
-GEOJSON = RAIZ.parent / "Catastro_ML" / "Construcciones.geojson"
+# construcciones: morfologia.py explica cuando se usa cada una
+GEOJSON = RAIZ.parent / "Catastro_ML" / "Construcciones.geojson"     # copia historica, opcional
+MORFOLOGIA_REFERENCIA = RAIZ / "data" / "referencia" / "morfologia_manzanas.csv.gz"
+CONSTRUCCIONES = RAW / "construcciones.csv.gz"                       # version vigente
 
 ANIO = 2026
 ANIO_INI = 2017
 SEMILLA = 42
 
-# capas de Catastro (copiadas de Avaluo_bog/Data)
+# de grados a kilometros, a la latitud de Bogota (4.65 N)
+KM_POR_GRADO_LON = 111.320 * cos(radians(4.65))
+KM_POR_GRADO_LAT = 110.574
+
+# capas de Catastro: las baja ingesta.py
 SUELO = RAW / "suelo_pot.gpkg"
 ESTRATOS = RAW / "estratos_manzana.gpkg"
 PRECIOS = RAW / ("valor_referencia_%d.gpkg" % ANIO)
 SERIE = RAW / "valor_referencia_serie.csv.gz"
 USOS = RAW / ("uso_predominante_%d.gpkg" % ANIO)
-SECTORES = RAW / "sectores_catastrales.csv"     # nombres, los baja zonas.py
+SECTORES = RAW / "sectores_catastrales.csv"     # nombre de cada sector
 LOCALIDADES = RAW / "localidades.gpkg"
 
 # lo que produce el pipeline
